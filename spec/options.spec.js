@@ -641,6 +641,27 @@ describe('Ajv Options', function () {
     });
   });
 
+  describe('Dynamic defaults', function() {
+    it('should set a default to the result of a function invocation', function() {
+      var ajv = new Ajv({ useDefaults: 'shared', defaulters: { 'random()': function() { return Math.random(); } } });
+      var schema = {
+        properties: {
+          random: {
+            type: 'number',
+            default: 'random()'
+          }
+        }
+      };
+
+      var validate = ajv.compile(schema);
+
+      var data = {};
+      validate(data) .should.equal(true);
+
+      data.random .should.be.gte(0);
+      data.random .should.be.lte(1);
+    });
+  });
 
   describe('addUsedSchema', function() {
     [true, undefined].forEach(function (optionValue) {
